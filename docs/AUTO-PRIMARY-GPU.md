@@ -76,7 +76,3 @@ clang++ -std=c++17 tools/test_primary_gpu_range.cpp -o /tmp/primary-range
 /tmp/primary-range
 python3 tools/test_primary_gpu_install.py
 ```
-
-This contribution was prepared with AI assistance, including code and tests.
-The repository currently declines AI-written contributions. This disclosure
-does not assert compliance with its human-authorship checkbox.
