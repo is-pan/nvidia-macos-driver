@@ -53,8 +53,8 @@ cards uniquely owned the console. NVRM and NVAccel each had one active instance,
 on the connected `C2:00.0` card, with automatic-property matching rather than a
 hardcoded PCI address. The desktop reported RTX 4090, 24 GB, Metal 3 and
 3840×2160 at 60 Hz. The other three cards had neither the primary marker nor an
-RM claim. The loaded UUIDs matched all four official 2.1.0 components. BCM5720
-networking retained DHCP and an HTTPS 200 response. No crash file was collected.
+RM claim. The loaded UUIDs matched all four official 2.1.0 components.
+No crash file was collected.
 
 This establishes startup display selection on that topology. Moving the cable
 or card, sleep/wake, long-running graphics workloads and other machines are
