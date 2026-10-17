@@ -1,18 +1,11 @@
-"""Exercise selector opt-in/update/rollback using the existing private installer fixture."""
+"""Exercise selector opt-in/update/rollback without the separate 1401 repository."""
 import hashlib,importlib.util,json,os,plistlib,subprocess,unittest,tempfile
 from pathlib import Path
 R=Path(__file__).resolve().parents[1]
-spec=importlib.util.spec_from_file_location('installer_fixture',R/'tools/test_support_install.py')
+spec=importlib.util.spec_from_file_location('installer_fixture',R/'tools/primary_install_fixture.py')
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 
 class PrimaryInstall(m.Install):
-    @classmethod
-    def setUpClass(cls):
-        # This helper parses x86_64 Mach-O metadata; its own host architecture
-        # need not be x86_64. Run the fixtures on Apple silicon without Rosetta.
-        cls.guard_temp=tempfile.TemporaryDirectory()
-        cls.guard=Path(cls.guard_temp.name)/'runtime-check'
-        subprocess.run(['xcrun','clang','-O2','-Wall','-Wextra','-Werror',str(R/'app/RuntimeCheck/main.c'),'-o',str(cls.guard)],check=True)
     def setUp(self):
         super().setUp()
         for root in (self.payload,self.root):
@@ -76,5 +69,11 @@ class PrimaryInstall(m.Install):
         self.assertEqual(r.returncode,0,r.stdout+r.stderr)
         for p,data in self.old.items():self.assertEqual(p.read_bytes(),data)
         subprocess.run(['shasum','-a','256','-c','SHA256SUMS','--quiet'],cwd=self.payload,check=True)
+    def test_upstream_fallback_job_retains_selector_in_restoration_list(self):
+        self.opt_in();r=self.run_install(EXPECT_PRIMARY='1')
+        self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+        fallback=(self.root/'Library/NullMoth/lastgood.sh').read_text()
+        self.assertIn('for k in NVRM NVAccel NVRMFB NVRMAGDC NVPrimarySelector;',fallback)
+        self.assertIn('shutdown -r now',fallback)
 
 if __name__=='__main__':unittest.main(verbosity=2)
